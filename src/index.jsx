@@ -59,6 +59,14 @@ function getDistinctAssigneeList(issues) {
 
   return assigneeList;
 }
+function preparedSprintData(sprint) {
+  let sprintData = {};
+  const days = Math.round((new Date(sprint.endDate).getTime() - new Date(sprint.startDate).getTime()) / (1000 * 60 * 60 * 24));;
+  sprintData.sprintDays = days - ((days / 7) * 2);
+  sprintData.workingHours = 8;
+  sprintData.capacity = sprintData.sprintDays * sprintData.workingHours;
+  return sprintData;
+}
 function getPreparedData(issues, assigneeList) {
   let preparedData = [];
   assigneeList.map(
@@ -85,12 +93,10 @@ function getPreparedData(issues, assigneeList) {
             }
             assigneeData.estimatedTime += issue.progress.total;
             assigneeData.spentTime += issue.progress.progress;
-            console.log('issue', issue.progress.total, issue.progress.progress);
             assigneeData.reqET += issue.progress.total - parseInt(issue.progress.progress);
           }
         }
       );
-      // assigneeData.reqET = (assigneeData.reqET) / 60 / 60;
       preparedData.push(assigneeData);
 
     }
@@ -125,12 +131,11 @@ function getPreparedData(issues, assigneeList) {
 const App = () => {
   const context = useProductContext();
   const [sprint] = useState(async () => await getActiveSprint());
-  console.log('sprintDetails', sprint);
   const [sprintIssues] = useState(async () => await getIssuesBySprint(sprint.id));
   const [assigneeList] = useState(async () => await getDistinctAssigneeList(sprintIssues));
-  const [preparedData] = useState(async () => await getPreparedData(sprintIssues, assigneeList));
+  const [preparedData] = useState(async () => await getPreparedData(sprintIssues, assigneeList, sprint));
   const [comments] = useState(async () => await fetchCommentsForIssue(context.platformContext.issueId));
-  let com = comments[0]?.body?.content[0]?.content[0]?.text;
+  let sprintDetails = preparedSprintData(sprint);
 
   return (
     <Table>
@@ -175,7 +180,7 @@ const App = () => {
             <Text>{parseInt(issue.spentTime) / 60 / 60}</Text>
           </Cell>
           <Cell>
-            <Text>{issue.reqET}</Text>
+            <Text>{(issue.reqET) / 60 / 60}</Text>
           </Cell>
           <Cell>
             <Text></Text>
