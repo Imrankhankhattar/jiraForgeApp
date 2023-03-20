@@ -1,0 +1,16 @@
+modules:
+  jira:issuePanel:
+    - key: testapp-hello-world-panel
+      function: main
+      title: sprint Test
+      icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
+  function:
+    - key: main
+      handler: index.run
+app:
+  id: ari:cloud:ecosystem::app/5f1c935f-3e23-46a2-a64e-77475ce8d1e9
+permissions:
+  scopes:
+    - read:me
+    - read:jira-work
+    - read:sprint:jira-software
